@@ -4,8 +4,31 @@
 #include <iostream>
 #include <regex>
 #include <time.h>
+#include <vector>
+#include <math.h>
 
 using namespace std;
+
+// Linked list node
+struct node
+{
+    string value;
+    node *next;
+};
+
+// Insert node to the front of the linked list
+void insert(string data, node **head)
+{
+    struct node *newNode;
+    newNode = new node;
+    newNode->value = data;
+    newNode->next = (*head);
+    (*head) = newNode;
+}
+
+void skimList(node **head, int numLetters, string secretString, string ouput)
+{
+}
 
 int main()
 {
@@ -23,15 +46,32 @@ int main()
     char secretArray[numLetters];
     string secretString;
 
+    // Linked list head node
+    struct node *head;
+
+    // Populate linked list with all possible inputs
+    int i = 0;
+    while (i < pow(numLetters, 4))
+    {
+        int numPossibilities = pow(numLetters, 4);
+        string output;
+        output += letters[floor(i / (numPossibilities / 4))];
+        output += letters[floor((i / (numPossibilities / 16)) % 4)];
+        output += letters[floor((i / (numPossibilities / 64)) % 4)];
+        output += letters[i % 4];
+
+        insert(output, &head);
+
+        i++;
+    }
+
     // Generate secret array and string
     for (int i = 0; i < numLetters; i++)
     {
-        char letter = letters[rand() % numLetters];
+        char letter = letters[rand() % 4];
         secretArray[i] = letter;
         secretString = secretString + letter;
     }
-
-    cout << secretString << endl;
 
     // Main game loop
     while (guesses < 10)
@@ -55,46 +95,115 @@ int main()
             }
         }
 
-        //Generate input array from string
-        for(int i = 0; i < numLetters; i++){
+        // Generate input array from string
+        for (int i = 0; i < numLetters; i++)
+        {
             inputArray[i] = inputSpell[i];
         }
 
         string hintR;
         string hintB;
+        string plainHint;
 
         // Check for correct letters in correct location
         for (int i = 0; i < numLetters; i++)
         {
             if (inputArray[i] == secretArray[i])
             {
-                hintR = hintR + "\x1B[31;1mR\033[0m";
+                hintR += "\x1B[31;1mR\033[0m";
+                plainHint += "R";
                 secretArray[i] = '$';
+                inputArray[i] = '$';
             }
         }
 
         // Check for correct letters in incorrect location
-        for(int i = 0; i < numLetters; i++){
-            for(int j = 0; j < numLetters; j++){
-                cout << inputArray[i] << secretArray[j] << endl;
-                if(inputArray[i] == secretArray[j]){
-                    hintB = hintB + "\x1B[33;1mB\033[0m";
+        for (int i = 0; i < numLetters; i++)
+        {
+            for (int j = 0; j < numLetters; j++)
+            {
+                if (inputArray[i] == secretArray[j] && inputArray[i] != '$')
+                {
+                    hintB += "\x1B[34;1mB\033[0m";
+                    plainHint += "B";
                     secretArray[j] = '$';
+                    inputArray[i] = '$';
                 }
             }
         }
+
+        // skim array and remove incorrect inputs
+        node *temp = head;
+        node *prev = head;
+        while (temp != NULL)
+        {
+            string tempOutput;
+            char tempSpell[numLetters];
+
+            // Reset input array
+            for (int i = 0; i < numLetters; i++)
+            {
+                inputArray[i] = inputSpell[i];
+            }
+
+            //Generate temporary spell array
+            for (int i = 0; i < numLetters; i++)
+            {
+                tempSpell[i] = temp->value[i];
+            }
+
+            // Check for correct letters in correct location
+            for (int i = 0; i < numLetters; i++)
+            {
+                if (inputArray[i] == tempSpell[i])
+                {
+                    tempOutput += "R";
+                    inputArray[i] = '$';
+                    tempSpell[i] = '$';
+                }
+            }
+
+            // Check for correct letters in incorrect location
+            for (int i = 0; i < numLetters; i++)
+            {
+                for (int j = 0; j < numLetters; j++)
+                {
+                    if (inputArray[i] == tempSpell[j] && inputArray[i] != '$')
+                    {
+                        tempOutput += "B";
+                        tempSpell[j] = '$';
+                        inputArray[i] = '$';
+                    }
+                }
+            }
+
+            if(tempOutput == plainHint){
+                cout << "possible answer ->" << endl;
+                //prev->next = temp->next;
+            }
+
+            cout << temp->value << "\t" << tempOutput << "\t" << plainHint << endl;
+
+            /*prev = temp;
+            if(prev == NULL) break;*/
+                temp = temp->next;
+        }
+
+        cout << "got here" << endl;
 
         if (inputSpell == secretString)
         {
             cout << "You beat the Golems" << endl;
             break;
         }
+        else if (guesses == 9)
+        {
+            cout << "You lost. The secret code was: " << secretString << endl;
+        }
         else
         {
             cout << hintR << hintB << endl;
         }
-
-        //"\033[1;34mB\033[0m" for colored letter
 
         guesses++;
     }
