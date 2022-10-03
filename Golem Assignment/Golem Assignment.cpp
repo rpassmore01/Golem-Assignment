@@ -94,7 +94,9 @@ int main()
     while (guesses < 10)
     {
         cout << "Guesses Left: " << 10 - guesses << endl;
-        if(hint) cout << "Hint: " << head->value << endl;
+        if(hint && guesses != 0) cout << "Hint: " << head->value << endl;
+        else if(guesses == 0 && hint) cout << "Hint: FEAW" << endl;
+
         string inputSpell = "";
         char inputArray[numLetters];
         string hint;
