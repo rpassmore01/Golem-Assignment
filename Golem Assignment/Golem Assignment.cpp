@@ -1,5 +1,9 @@
-// Golem Assignment.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+/*
+    Name: Russell Passmore
+    Class: ICS4U
+    Assignment: Golem Assignment
+    Date: October 2, 2022
+*/
 
 #include <iostream>
 #include <regex>
@@ -19,23 +23,19 @@ struct node
 // Insert node to the front of the linked list
 void insert(string data, node **head)
 {
-    struct node *newNode;
+    node *newNode;
     newNode = new node;
     newNode->value = data;
     newNode->next = (*head);
     (*head) = newNode;
 }
 
-void skimList(node **head, int numLetters, string secretString, string ouput)
-{
-}
-
 int main()
 {
-    // cout << "The Golems are starting to fight back after years of unfair working conditions. It is up to you to neutralize the situation.\nYou can cast spells on the Golems using 4 elements: Fire, Water, Air and Earth.\nSpells must be cast in the following format: FEAW (Fire, Earth, Air and Water)\nYou can cast spells with the same element twice.\nAfter you cast a spell the Golem's eyes will glow red for every element that is in the correct place.\nThe Golem's eyes will glow blue for every correct letter that is in the wrong place.\nThese responses will look like this: RRBB\nYou will have only 10 attempts to neutralize the situation with the Golems.\nGood Luck!" << endl;
     srand(time(NULL));
-
     const int numLetters = 4;
+
+    //Create regex for correct guesses
     stringstream ss;
     ss << "[AFWE]{" << numLetters << "}";
     const regex stringExp(ss.str());
@@ -47,7 +47,7 @@ int main()
     string secretString;
 
     // Linked list head node
-    struct node *head;
+    struct node *head = NULL;
 
     // Populate linked list with all possible inputs
     int i = 0;
@@ -73,14 +73,19 @@ int main()
         secretString = secretString + letter;
     }
 
+    cout << "The Golems are starting to fight back after years of unfair working conditions. It is up to you to neutralize the situation.\nYou can cast spells on the Golems using 4 elements: Fire, Water, Air and Earth.\nSpells must be cast in the following format: FEAW (Fire, Earth, Air and Water)\nYou can cast spells with the same element in it multiple times.\nAfter you cast a spell the Golem's eyes will glow red for every element that is in the correct place.\nThe Golem's eyes will glow blue for every correct letter, but in the wrong place.\nThese responses will look like this: RRBB\nYou will have only 10 attempts to neutralize the situation with the Golems.\nGood Luck!" << endl;
+
     // Main game loop
     while (guesses < 10)
     {
         cout << "Guesses Left: " << 10 - guesses << endl;
+        cout << "Hint: " << head->value << endl;
         string inputSpell = "";
         char inputArray[numLetters];
+        string hint;
+        string plainHint;
 
-        // Ask for input until it matches the REGEX
+        // Ask for input until it is correct
         while (!regex_match(inputSpell, stringExp))
         {
             string input;
@@ -101,16 +106,12 @@ int main()
             inputArray[i] = inputSpell[i];
         }
 
-        string hintR;
-        string hintB;
-        string plainHint;
-
         // Check for correct letters in correct location
         for (int i = 0; i < numLetters; i++)
         {
             if (inputArray[i] == secretArray[i])
             {
-                hintR += "\x1B[31;1mR\033[0m";
+                hint += "\x1B[31;1mR\033[0m";
                 plainHint += "R";
                 secretArray[i] = '$';
                 inputArray[i] = '$';
@@ -124,7 +125,7 @@ int main()
             {
                 if (inputArray[i] == secretArray[j] && inputArray[i] != '$')
                 {
-                    hintB += "\x1B[34;1mB\033[0m";
+                    hint += "\x1B[34;1mB\033[0m";
                     plainHint += "B";
                     secretArray[j] = '$';
                     inputArray[i] = '$';
@@ -132,9 +133,29 @@ int main()
             }
         }
 
+        if (inputSpell == secretString)
+        {
+            cout << "You beat the Golems" << endl;
+            break;
+        }
+        else if (guesses == 9)
+        {
+            cout << "You lost. The secret code was: " << secretString << endl;
+        }
+        else
+        {
+            cout << hint << endl;
+        }
+
+        // Reset secret array
+        for (int i = 0; i < numLetters; i++)
+        {
+            secretArray[i] = secretString[i];
+        }
+
         // skim array and remove incorrect inputs
         node *temp = head;
-        node *prev = head;
+        node *previous = head;
         while (temp != NULL)
         {
             string tempOutput;
@@ -146,7 +167,7 @@ int main()
                 inputArray[i] = inputSpell[i];
             }
 
-            //Generate temporary spell array
+            // Generate temporary spell array
             for (int i = 0; i < numLetters; i++)
             {
                 tempSpell[i] = temp->value[i];
@@ -177,32 +198,38 @@ int main()
                 }
             }
 
-            if(tempOutput == plainHint){
-                cout << "possible answer ->" << endl;
-                //prev->next = temp->next;
+            //Check if guess is a possible answer
+            if (tempOutput != plainHint)
+            {
+                //If removing from the start of list
+                if (temp == head)
+                {
+                    previous = temp;
+                    head = head->next;
+                    temp = head;
+                    delete previous;
+                    previous = head;
+                }
+                //If removing from end of list
+                else if (temp->next == NULL)
+                {
+                    previous->next = NULL;
+                    delete temp;
+                    temp = previous->next;
+                }
+                //If removing from the middle of the list
+                else
+                {
+                    previous->next = temp->next;
+                    delete temp;
+                    temp = previous->next;
+                }
             }
-
-            cout << temp->value << "\t" << tempOutput << "\t" << plainHint << endl;
-
-            /*prev = temp;
-            if(prev == NULL) break;*/
+            else
+            {
+                previous = temp;
                 temp = temp->next;
-        }
-
-        cout << "got here" << endl;
-
-        if (inputSpell == secretString)
-        {
-            cout << "You beat the Golems" << endl;
-            break;
-        }
-        else if (guesses == 9)
-        {
-            cout << "You lost. The secret code was: " << secretString << endl;
-        }
-        else
-        {
-            cout << hintR << hintB << endl;
+            }
         }
 
         guesses++;
