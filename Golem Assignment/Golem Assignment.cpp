@@ -73,7 +73,7 @@ int main()
         secretString = secretString + letter;
     }
 
-    cout << "The Golems are starting to fight back after years of unfair working conditions. It is up to you to neutralize the situation.\nYou can cast spells on the Golems using 4 elements: Fire, Water, Air and Earth.\nSpells must be cast in the following format: FEAW (Fire, Earth, Air and Water)\nYou can cast spells with the same element in it multiple times.\nAfter you cast a spell the Golem's eyes will glow red for every element that is in the correct place.\nThe Golem's eyes will glow blue for every correct letter, but in the wrong place.\nThese responses will look like this: RRBB\nYou will have only 10 attempts to neutralize the situation with the Golems.\nGood Luck!" << endl;
+    cout << "The Golems are starting to fight back after years of unfair working conditions.\nIt is up to you to neutralize the situation.\nYou can cast spells on the Golems using 4 elements: Fire, Water, Air and Earth.\nSpells must be cast in the following format: FEAW (Fire, Earth, Air and Water)\nYou can cast spells with the same element in it multiple times.\nAfter you cast a spell the Golem's eyes will glow red for every element that is in the correct place.\nThe Golem's eyes will glow blue for every correct letter, but in the wrong place.\nThese responses will look like this: RRBB\nYou will have only 10 attempts to neutralize the situation with the Golems.\nGood Luck!" << endl;
 
     string hintInput;
     const regex stringExp("[YN]{1}");
