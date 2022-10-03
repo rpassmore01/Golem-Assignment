@@ -1,6 +1,6 @@
-#Golem Assignment
+# Golem Assignment
  
-*This is a school project so the read me is a bit verbose.*
+**This is a school project so the read me is a bit verbose.**
 
 In the game you are initially greeted with an explanation of the game, but I will give a short explanation here.
 
