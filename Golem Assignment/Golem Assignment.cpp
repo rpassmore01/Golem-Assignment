@@ -35,13 +35,13 @@ int main()
     srand(time(NULL));
     const int numLetters = 4;
 
-    //Create regex for correct guesses
+    // Create regex for correct guesses
     stringstream ss;
     ss << "[AFWE]{" << numLetters << "}";
-    const regex stringExp(ss.str());
     const string letters = "FEAW";
 
     int guesses = 0;
+    bool hint = false;
 
     char secretArray[numLetters];
     string secretString;
@@ -75,17 +75,33 @@ int main()
 
     cout << "The Golems are starting to fight back after years of unfair working conditions. It is up to you to neutralize the situation.\nYou can cast spells on the Golems using 4 elements: Fire, Water, Air and Earth.\nSpells must be cast in the following format: FEAW (Fire, Earth, Air and Water)\nYou can cast spells with the same element in it multiple times.\nAfter you cast a spell the Golem's eyes will glow red for every element that is in the correct place.\nThe Golem's eyes will glow blue for every correct letter, but in the wrong place.\nThese responses will look like this: RRBB\nYou will have only 10 attempts to neutralize the situation with the Golems.\nGood Luck!" << endl;
 
-    // Main game loop
+    string hintInput;
+    const regex stringExp("[YN]{1}");
+
+    while (!regex_match(hintInput, stringExp))
+    {
+        cout << "Would you like a hint? (y,n): ";
+        cin >> hintInput;
+        transform(hintInput.begin(), hintInput.end(), hintInput.begin(), ::toupper);
+    }
+
+    if (hintInput == "Y")
+    {
+        hint = true;
+    }
+
+    // Main game loops
     while (guesses < 10)
     {
         cout << "Guesses Left: " << 10 - guesses << endl;
-        cout << "Hint: " << head->value << endl;
+        if(hint) cout << "Hint: " << head->value << endl;
         string inputSpell = "";
         char inputArray[numLetters];
         string hint;
         string plainHint;
 
         // Ask for input until it is correct
+        const regex stringExp(ss.str());
         while (!regex_match(inputSpell, stringExp))
         {
             string input;
@@ -198,10 +214,10 @@ int main()
                 }
             }
 
-            //Check if guess is a possible answer
+            // Check if guess is a possible answer
             if (tempOutput != plainHint)
             {
-                //If removing from the start of list
+                // If removing from the start of list
                 if (temp == head)
                 {
                     previous = temp;
@@ -210,14 +226,14 @@ int main()
                     delete previous;
                     previous = head;
                 }
-                //If removing from end of list
+                // If removing from end of list
                 else if (temp->next == NULL)
                 {
                     previous->next = NULL;
                     delete temp;
                     temp = previous->next;
                 }
-                //If removing from the middle of the list
+                // If removing from the middle of the list
                 else
                 {
                     previous->next = temp->next;
